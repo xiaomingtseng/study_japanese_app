@@ -14,6 +14,17 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            // user analysis area
+            Align(
+              alignment: Alignment.topRight,
+              child: IconButton(
+                icon: const Icon(Icons.analytics, size: 30),
+                color: const Color.fromARGB(255, 23, 161, 131),
+                onPressed: () {
+                  Navigator.pushNamed(context, '/userAnalysis');
+                },
+              ),
+            ),
             //title area
             const Padding(
               padding: EdgeInsets.all(16.0),
