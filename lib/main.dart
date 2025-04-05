@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'core/home_screen.dart';
+import 'features/word_practice_screen.dart';
+import 'features/grammar_practice_screen.dart';
+import 'features/listening_practice_screen.dart';
 
 void main() {
   runApp(const MainApp());
@@ -10,50 +14,47 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title: const Text('日文小幫手')),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            //title area
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text(
-                '歡迎來到日語學習應用',
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const SplashScreen(),
+        '/home': (context) => const HomeScreen(),
+        '/wordPractice': (context) => const WordPracticeScreen(),
+        '/grammarPractice': (context) => const GrammarPracticeScreen(),
+        '/listeningPractice': (context) => const ListeningPracticeScreen(),
+      },
+      theme: ThemeData(primarySwatch: Colors.red),
+      debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+class SplashScreen extends StatelessWidget {
+  const SplashScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 170, 67, 67),
+      body: GestureDetector(
+        onTap: () {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomeScreen()),
+          );
+        },
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Image.asset('assets/images/logo.png', width: 200, height: 200),
+              const SizedBox(height: 20),
+              const Text(
+                'Tap to Start',
                 style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
-            ),
-            //content area
-            Expanded(
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Text(
-                      '這裡是內容區域',
-                      style: TextStyle(fontSize: 20),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 20),
-                    Icon(
-                      Icons.school,
-                      size: 50,
-                      color: Color.fromARGB(0, 7, 85, 187),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            //button area
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ElevatedButton(
-                onPressed: () {},
-                child: const Text('開始學習'),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
