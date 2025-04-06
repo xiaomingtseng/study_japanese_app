@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'features/home_screen.dart';
-import 'features/word_practice_screen.dart';
+import 'features/word/word_practice_screen.dart';
 import 'features/grammar_practice_screen.dart';
 import 'features/listening_practice_screen.dart';
 import 'features/user_analysis_screen.dart';
