@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'core/home_screen.dart';
+import 'features/home_screen.dart';
 import 'features/word_practice_screen.dart';
 import 'features/grammar_practice_screen.dart';
 import 'features/listening_practice_screen.dart';
 import 'features/user_analysis_screen.dart';
+import 'features/setting_screen.dart';
+// import 'core/database/db.dart';
 
 void main() {
   runApp(const MainApp());
@@ -23,6 +25,7 @@ class MainApp extends StatelessWidget {
         '/grammarPractice': (context) => const GrammarPracticeScreen(),
         '/listeningPractice': (context) => const ListeningPracticeScreen(),
         '/userAnalysis': (context) => const UserAnalysisScreen(),
+        '/setting': (context) => const SettingScreen(),
       },
       theme: ThemeData(primarySwatch: Colors.red),
       debugShowCheckedModeBanner: false,
