@@ -6,21 +6,19 @@ class WordCard extends StatelessWidget {
   final String? romaji;
 
   const WordCard({
-    super.key,
+    Key? key,
     required this.japanese,
     required this.chinese,
     this.romaji,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 4, // 添加陰影
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12), // 圓角
-      ),
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

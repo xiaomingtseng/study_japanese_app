@@ -7,9 +7,9 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('AppBar will delete after stable version'),
-      ),
+      // appBar: AppBar(
+      //   title: const Text('AppBar will delete after stable version'),
+      // ),
       backgroundColor: const Color.fromRGBO(202, 66, 66, 1),
       body: SingleChildScrollView(
         child: ConstrainedBox(
@@ -51,11 +51,11 @@ class HomeScreen extends StatelessWidget {
                 const Divider(
                   color: Colors.black,
                   thickness: 2,
-                  indent: 16,
-                  endIndent: 16,
+                  // indent: 16,
+                  // endIndent: 16,
                 ),
                 // Spacer to push buttons to the bottom
-                const Spacer(),
+                const Spacer(flex: 1),
                 // content area (buttons)
                 _buildTrainButton(
                   context,
