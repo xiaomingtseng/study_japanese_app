@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'features/home_screen.dart';
+import 'features/fifty_letter/hiragana.dart';
+import 'features/fifty_letter/katagana.dart';
 import 'features/word/word_practice_screen.dart';
 import 'features/grammar_practice_screen.dart';
 import 'features/listening_practice_screen.dart';
@@ -21,6 +23,8 @@ class MainApp extends StatelessWidget {
       routes: {
         '/': (context) => const SplashScreen(),
         '/home': (context) => const HomeScreen(),
+        '/katagana': (context) => const Katagana(),
+        '/hiragana': (context) => const Hiragana(),
         '/wordPractice': (context) => const WordPracticeScreen(),
         '/grammarPractice': (context) => const GrammarPracticeScreen(),
         '/listeningPractice': (context) => const ListeningPracticeScreen(),

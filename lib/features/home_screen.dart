@@ -54,8 +54,31 @@ class HomeScreen extends StatelessWidget {
                   // indent: 16,
                   // endIndent: 16,
                 ),
+
                 // Spacer to push buttons to the bottom
-                const Spacer(flex: 1),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildKanaButton(
+                      title: 'Hiragana\nあかさたな',
+                      color: Colors.teal,
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/hiragana');
+                      },
+                    ),
+                    _buildKanaButton(
+                      title: 'Katakana\nアカサタナ',
+                      color: Colors.purple,
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/katagana');
+                      },
+                    ),
+                  ],
+                ),
+
+                Spacer(
+                  flex: 1,
+                ), // Spacer to add even spacing between the buttons and the bottom
                 // content area (buttons)
                 _buildTrainButton(
                   context,
@@ -112,6 +135,41 @@ Widget _buildTrainButton(
     child: Text(
       title,
       style: const TextStyle(fontSize: 20, color: Colors.white),
+    ),
+  );
+}
+
+Widget _buildKanaButton({
+  required String title,
+  required Color color,
+  required VoidCallback onPressed,
+}) {
+  return GestureDetector(
+    onTap: onPressed,
+    child: Container(
+      width: 150,
+      height: 100,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black,
+            blurRadius: 5,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        title,
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          fontSize: 18,
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
     ),
   );
 }
