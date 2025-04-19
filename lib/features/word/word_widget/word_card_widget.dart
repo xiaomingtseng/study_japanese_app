@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
 class WordCard extends StatelessWidget {
-  final String japanese;
-  final String chinese;
-  final String? romaji;
+  final String word; // 必填
+  final String? phonetic; // 選填
+  final String? mean; // 選填
 
   const WordCard({
     Key? key,
-    required this.japanese,
-    required this.chinese,
-    this.romaji,
+    required this.word, // word 是必填
+    this.phonetic, // phonetic 是選填
+    this.mean, // mean 是選填
   }) : super(key: key);
 
   @override
@@ -23,23 +23,19 @@ class WordCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              japanese,
+              word,
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 8),
-            Text(
-              chinese,
-              style: const TextStyle(fontSize: 18, color: Colors.grey),
-            ),
-            if (romaji != null) ...[
+            if (phonetic != null) ...[
               const SizedBox(height: 8),
               Text(
-                romaji!,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontStyle: FontStyle.italic,
-                ),
+                phonetic!,
+                style: const TextStyle(fontSize: 18, color: Colors.grey),
               ),
+            ],
+            if (mean != null) ...[
+              const SizedBox(height: 8),
+              Text(mean!, style: const TextStyle(fontSize: 16)),
             ],
           ],
         ),

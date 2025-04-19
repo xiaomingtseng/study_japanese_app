@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart'; // 如果您使用 Firebase CLI 生成了配置文件
 import 'features/home_screen.dart';
 import 'features/fifty_letter/hiragana.dart';
 import 'features/fifty_letter/katagana.dart';
@@ -7,9 +9,12 @@ import 'features/grammar_practice_screen.dart';
 import 'features/listening_practice_screen.dart';
 import 'features/user_analysis_screen.dart';
 import 'features/setting_screen.dart';
-// import 'core/database/db.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform, // 如果使用 Firebase CLI 配置
+  );
   runApp(const MainApp());
 }
 
@@ -19,6 +24,7 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'Study Japanese',
       initialRoute: '/',
       routes: {
         '/': (context) => const SplashScreen(),
@@ -31,7 +37,7 @@ class MainApp extends StatelessWidget {
         '/userAnalysis': (context) => const UserAnalysisScreen(),
         '/setting': (context) => const SettingScreen(),
       },
-      theme: ThemeData(primarySwatch: Colors.red),
+      theme: ThemeData(primarySwatch: Colors.blue),
       debugShowCheckedModeBanner: false,
     );
   }

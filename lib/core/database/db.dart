@@ -1,47 +1,55 @@
-import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class DatabaseHelper {
-  static final DatabaseHelper instance = DatabaseHelper._init();
-  static Database? _database;
+class Database {
+  static final Database instance = Database._init();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  DatabaseHelper._init();
+  Database._init();
 
-  Future<Database> get database async {
-    if (_database != null) return _database!;
-    _database = await _initDB('japanese_words.db');
-    return _database!;
+  // 根據 JLPT 分級取得對應的集合
+  CollectionReference<Map<String, dynamic>> getCollection(String jlptLevel) {
+    // 根據傳入的 jlptLevel 決定集合名稱
+    String collectionName;
+    switch (jlptLevel) {
+      case 'N5':
+        collectionName = 'n5_words';
+        break;
+      case 'N4':
+        collectionName = 'n4_words';
+        break;
+      case 'N3':
+        collectionName = 'n3_words';
+        break;
+      case 'N2':
+        collectionName = 'n2_words';
+        break;
+      case 'N1':
+        collectionName = 'n1_words';
+        break;
+      default:
+        throw ArgumentError('Invalid JLPT level: $jlptLevel');
+    }
+    return _firestore.collection(collectionName);
   }
 
-  Future<Database> _initDB(String filePath) async {
-    final dbPath = await getDatabasesPath();
-    final path = join(dbPath, filePath);
-
-    return await openDatabase(path, version: 1, onCreate: _createDB);
+  // 插入單字
+  Future<void> insertWord(String jlptLevel, String word, String meaning) async {
+    final collection = getCollection(jlptLevel);
+    await collection.add({'word': word, 'meaning': meaning});
   }
 
-  Future _createDB(Database db, int version) async {
-    await db.execute('''
-      CREATE TABLE words (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        word TEXT NOT NULL,
-        meaning TEXT NOT NULL
-      )
-    ''');
+  // 刪除單字
+  Future<void> deleteWord(String jlptLevel, String wordId) async {
+    final collection = getCollection(jlptLevel);
+    await collection.doc(wordId).delete();
   }
 
-  Future<int> insertWord(String word, String meaning) async {
-    final db = await instance.database;
-    return await db.insert('words', {'word': word, 'meaning': meaning});
-  }
-
-  Future<int> deleteWord(String word) async {
-    final db = await instance.database;
-    return await db.delete('words', where: 'word = ?', whereArgs: [word]);
-  }
-
-  Future<List<Map<String, dynamic>>> fetchWords() async {
-    final db = await instance.database;
-    return await db.query('words');
+  // 取得所有單字
+  Future<List<Map<String, dynamic>>> fetchWords(String jlptLevel) async {
+    final collection = getCollection(jlptLevel);
+    final querySnapshot = await collection.get();
+    return querySnapshot.docs
+        .map((doc) => {'id': doc.id, ...doc.data()})
+        .toList();
   }
 }

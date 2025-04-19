@@ -58,7 +58,8 @@ class _WordPracticeScreenState extends State<WordPracticeScreen>
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => WordList(),
+                                builder:
+                                    (context) => WordList(jlptLevel: 'N$level'),
                               ),
                             );
                           },
