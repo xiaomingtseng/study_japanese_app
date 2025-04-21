@@ -5,7 +5,7 @@ import 'features/home_screen.dart';
 import 'features/fifty_letter/hiragana.dart';
 import 'features/fifty_letter/katagana.dart';
 import 'features/word/word_practice_screen.dart';
-import 'features/grammar_practice_screen.dart';
+import 'features/grammer/grammar_practice_screen.dart';
 import 'features/listening_practice_screen.dart';
 import 'features/user_analysis_screen.dart';
 import 'features/setting_screen.dart';

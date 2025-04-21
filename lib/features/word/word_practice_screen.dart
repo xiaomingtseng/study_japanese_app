@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:study_japanese/features/word/word_widget/word_list_widget.dart';
+import 'package:study_japanese/features/word/section_quiz_selection_screen.dart';
 
 class WordPracticeScreen extends StatefulWidget {
   const WordPracticeScreen({super.key});
@@ -87,8 +88,9 @@ class _WordPracticeScreenState extends State<WordPracticeScreen>
                               context,
                               MaterialPageRoute(
                                 builder:
-                                    (context) =>
-                                        SectionQuizScreen(level: level),
+                                    (context) => SectionQuizSelectionScreen(
+                                      level: level,
+                                    ),
                               ),
                             );
                           },
