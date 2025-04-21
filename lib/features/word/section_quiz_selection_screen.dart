@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:study_japanese/features/word/word_matching_game_screen.dart';
+import 'package:study_japanese/features/word/word_multiple_choice_game_screen.dart';
 
 class SectionQuizSelectionScreen extends StatelessWidget {
   final int level; // 傳入的等級，例如 N5
@@ -54,7 +55,17 @@ class SectionQuizSelectionScreen extends StatelessWidget {
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          // TODO: 進入其他測驗類型，例如選擇題遊戲
+                          // 進入四選一遊戲
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) => WordMultipleChoiceGameScreen(
+                                    level: level,
+                                    round: index + 1,
+                                  ),
+                            ),
+                          );
                         },
                         child: const Text('選擇題遊戲'),
                       ),
