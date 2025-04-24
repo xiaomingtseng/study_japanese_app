@@ -27,7 +27,7 @@ class _WordMatchingGameScreenState extends State<WordMatchingGameScreen> {
   String? selectedJapanese; // 當前選中的日文單字
   String? selectedChinese; // 當前選中的中文翻譯
 
-  late Timer _timer; // 計時器
+  late Timer _timer = Timer(const Duration(seconds: 0), () {});
   int _elapsedSeconds = 0; // 已經過的秒數
 
   @override
@@ -38,7 +38,10 @@ class _WordMatchingGameScreenState extends State<WordMatchingGameScreen> {
 
   @override
   void dispose() {
-    _timer.cancel(); // 停止計時器
+    // 檢查 _timer 是否已初始化
+    if (_timer.isActive) {
+      _timer.cancel(); // 停止計時器
+    }
     super.dispose();
   }
 
@@ -66,10 +69,10 @@ class _WordMatchingGameScreenState extends State<WordMatchingGameScreen> {
         isLoading = false;
       });
 
-      // 瀏覽階段結束後開始遊戲
-      Future.delayed(const Duration(seconds: 10), () {
-        _startGame();
-      });
+      // // 瀏覽階段結束後開始遊戲
+      // Future.delayed(const Duration(seconds: 10), () {
+      //   _startGame();
+      // });
     } catch (e) {
       print('Error fetching words: $e');
       setState(() {
@@ -130,7 +133,9 @@ class _WordMatchingGameScreenState extends State<WordMatchingGameScreen> {
 
     // 停止計時器並顯示遊戲結束畫面
     if (cards.isEmpty) {
-      _timer.cancel();
+      if (_timer.isActive) {
+        _timer.cancel(); // 停止計時器
+      }
     }
   }
 
@@ -153,15 +158,58 @@ class _WordMatchingGameScreenState extends State<WordMatchingGameScreen> {
               fit: BoxFit.cover, // 圖片填滿背景
             ),
           ),
-          child: ListView.builder(
-            itemCount: words.length,
-            itemBuilder: (context, index) {
-              final word = words[index];
-              return ListTile(
-                title: Text(word['japanese']!),
-                subtitle: Text(word['chinese']!),
-              );
-            },
+          child: Column(
+            children: [
+              Expanded(
+                child: PageView.builder(
+                  physics: const BouncingScrollPhysics(), // 拖曳效果
+                  itemCount: words.length,
+                  itemBuilder: (context, index) {
+                    final word = words[index];
+                    return Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Card(
+                        elevation: 4,
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                word['japanese']!,
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                word['chinese']!,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      isPreviewing = false;
+                      _startGame();
+                    });
+                  },
+                  child: const Text('開始遊戲'),
+                ),
+              ),
+            ],
           ),
         ),
       );
