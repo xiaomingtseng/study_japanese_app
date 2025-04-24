@@ -49,13 +49,38 @@ class Database {
     final collection = getCollection(jlptLevel);
     final querySnapshot = await collection.get();
 
-    for (var doc in querySnapshot.docs) {
-      print('Document ID: ${doc.id}');
-      print('Document Data: ${doc.data()}');
-    }
+    // for (var doc in querySnapshot.docs) {
+    //   print('Document ID: ${doc.id}');
+    //   print('Document Data: ${doc.data()}');
+    // }
 
     return querySnapshot.docs
         .map((doc) => {'id': doc.id, ...doc.data()})
         .toList();
+  }
+
+  // 根據分級和回數篩選單字
+  Future<List<Map<String, dynamic>>> fetchWordsByLevelAndRound(
+    String jlptLevel,
+    int round,
+  ) async {
+    final collection = getCollection(jlptLevel);
+
+    // 計算單字的起始和結束索引
+    final int startIndex = (round - 1) * 20;
+    final int endIndex = round * 20;
+
+    // 取得所有單字
+    final querySnapshot = await collection.get();
+    final allWords =
+        querySnapshot.docs.map((doc) => {'id': doc.id, ...doc.data()}).toList();
+
+    // 確保區間不超出單字數量
+    final selectedWords = allWords.sublist(
+      startIndex,
+      endIndex > allWords.length ? allWords.length : endIndex,
+    );
+
+    return selectedWords;
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:study_japanese/core/database/db.dart'; // 假設有一個 Database 類別來處理資料庫操作
 import 'dart:async';
 import 'dart:math';
 
@@ -20,6 +21,7 @@ class _WordMatchingGameScreenState extends State<WordMatchingGameScreen> {
   List<Map<String, String>> words = []; // 單字資料
   List<Map<String, String>> cards = []; // 混合的卡片資料
   bool isLoading = true;
+  bool isPreviewing = true; // 是否處於單字瀏覽階段
   int correctMatches = 0; // 正確配對數量
   int attempts = 0; // 嘗試次數
   String? selectedJapanese; // 當前選中的日文單字
@@ -42,42 +44,61 @@ class _WordMatchingGameScreenState extends State<WordMatchingGameScreen> {
 
   Future<void> _fetchWords() async {
     try {
-      // 模擬從資料庫獲取單字
-      final allWords = List.generate(30, (index) {
-        return {'japanese': '單字$index', 'chinese': '翻譯$index'};
-      });
+      // 從資料庫根據分區和回數篩選單字
+      final db = Database.instance; // 假設有一個 Database 單例
+      final words = await db.fetchWordsByLevelAndRound('N5', widget.round);
 
-      // 隨機挑選 8 個單字
+      // 將資料轉換為需要的格式
+      final allWords =
+          words.map((word) {
+            return {
+              'japanese': word['word'] as String, // 確保類型為 String
+              'chinese': word['mean'] as String, // 確保類型為 String
+            };
+          }).toList();
+
+      // 隨機挑選 20 個單字
       allWords.shuffle(Random());
-      final selectedWords = allWords.take(8).toList();
-
-      // 將單字和翻譯混合成卡片
-      final japaneseCards =
-          selectedWords
-              .map((word) => {'type': 'japanese', 'value': word['japanese']!})
-              .toList();
-      final chineseCards =
-          selectedWords
-              .map((word) => {'type': 'chinese', 'value': word['chinese']!})
-              .toList();
-
-      final mixedCards = [...japaneseCards, ...chineseCards];
-      mixedCards.shuffle(Random());
+      final selectedWords = allWords.take(20).toList();
 
       setState(() {
-        words = selectedWords;
-        cards = mixedCards;
+        this.words = selectedWords; // 不強制轉換為 Map<String, String>
         isLoading = false;
       });
 
-      // 開始計時
-      _startTimer();
+      // 瀏覽階段結束後開始遊戲
+      Future.delayed(const Duration(seconds: 10), () {
+        _startGame();
+      });
     } catch (e) {
       print('Error fetching words: $e');
       setState(() {
         isLoading = false;
       });
     }
+  }
+
+  void _startGame() {
+    // 隨機選取 5 個單字進行測驗
+    final selectedWords = words.sublist(0, 5);
+
+    final japaneseCards =
+        selectedWords
+            .map((word) => {'type': 'japanese', 'value': word['japanese']!})
+            .toList();
+    final chineseCards =
+        selectedWords
+            .map((word) => {'type': 'chinese', 'value': word['chinese']!})
+            .toList();
+
+    final mixedCards = [...japaneseCards, ...chineseCards];
+    mixedCards.shuffle(Random());
+
+    setState(() {
+      cards = mixedCards;
+      isPreviewing = false;
+      _startTimer();
+    });
   }
 
   void _startTimer() {
@@ -117,6 +138,25 @@ class _WordMatchingGameScreenState extends State<WordMatchingGameScreen> {
   Widget build(BuildContext context) {
     if (isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    if (isPreviewing) {
+      // 單字瀏覽階段
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('單字瀏覽 - N${widget.level} 第 ${widget.round} 回'),
+        ),
+        body: ListView.builder(
+          itemCount: words.length,
+          itemBuilder: (context, index) {
+            final word = words[index];
+            return ListTile(
+              title: Text(word['japanese']!),
+              subtitle: Text(word['chinese']!),
+            );
+          },
+        ),
+      );
     }
 
     if (cards.isEmpty) {
