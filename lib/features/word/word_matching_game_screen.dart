@@ -60,9 +60,22 @@ class _WordMatchingGameScreenState extends State<WordMatchingGameScreen> {
   Future<void> _playBackgroundMusic() async {
     try {
       await _backgroundPlayer.setReleaseMode(ReleaseMode.loop); // 設定音樂循環播放
-      await _backgroundPlayer.setVolume(0.6); // 設定音量為 50%
+      await _backgroundPlayer.setVolume(1); // 設定音量為 50%
       await _backgroundPlayer.play(
         AssetSource('soundtrack/song18.mp3'),
+        ctx: AudioContext(
+          android: AudioContextAndroid(
+            isSpeakerphoneOn: false,
+            stayAwake: true,
+            contentType: AndroidContentType.music,
+            usageType: AndroidUsageType.media,
+            audioFocus: AndroidAudioFocus.none, // 不搶占音頻焦點
+          ),
+          iOS: AudioContextIOS(
+            category: AVAudioSessionCategory.ambient, // 背景播放
+            // options: [AVAudioSessionOptions.mixWithOthers], // 與其他音頻混合
+          ),
+        ),
       ); // 播放背景音樂
     } catch (e) {
       print('Error playing background music: $e');
