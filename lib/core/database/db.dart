@@ -48,6 +48,12 @@ class Database {
   Future<List<Map<String, dynamic>>> fetchWords(String jlptLevel) async {
     final collection = getCollection(jlptLevel);
     final querySnapshot = await collection.get();
+
+    for (var doc in querySnapshot.docs) {
+      print('Document ID: ${doc.id}');
+      print('Document Data: ${doc.data()}');
+    }
+
     return querySnapshot.docs
         .map((doc) => {'id': doc.id, ...doc.data()})
         .toList();

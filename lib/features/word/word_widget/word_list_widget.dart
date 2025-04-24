@@ -55,7 +55,7 @@ class _WordListState extends State<WordList> {
                     child: WordCard(
                       word: word['word'] ?? '', // 單字
                       phonetic: word['phonetic'], // 音標
-                      mean: word['meaning'], // 意思
+                      mean: word['mean'], // 意思
                       // 這裡可以添加更多的屬性，例如例句等
                     ),
                   );
