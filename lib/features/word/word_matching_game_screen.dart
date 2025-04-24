@@ -271,16 +271,35 @@ class _WordMatchingGameScreenState extends State<WordMatchingGameScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              Text(
-                '正確配對數量：$correctMatches',
-                style: const TextStyle(fontSize: 18),
-              ),
-              Text('總嘗試次數：$attempts', style: const TextStyle(fontSize: 18)),
-              Text(
-                '計時：${_elapsedSeconds}s',
-                style: const TextStyle(fontSize: 18),
+              // 數據顯示區域，添加白底
+              Container(
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.8), // 白色背景，帶透明度
+                  borderRadius: BorderRadius.circular(8.0), // 圓角
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '正確配對數量：$correctMatches',
+                      style: const TextStyle(fontSize: 18),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '總嘗試次數：$attempts',
+                      style: const TextStyle(fontSize: 18),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '計時：${_elapsedSeconds}s',
+                      style: const TextStyle(fontSize: 18),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 20),
+              // 卡片區域
               Expanded(
                 child: GridView.builder(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
