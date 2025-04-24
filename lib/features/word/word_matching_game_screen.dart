@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:study_japanese/core/database/db.dart'; // 假設有一個 Database 類別來處理資料庫操作
+import 'package:audioplayers/audioplayers.dart';
 import 'dart:async';
 import 'dart:math';
 
@@ -18,6 +19,9 @@ class WordMatchingGameScreen extends StatefulWidget {
 }
 
 class _WordMatchingGameScreenState extends State<WordMatchingGameScreen> {
+  final AudioPlayer _effectPlayer = AudioPlayer(); // 初始化音效播放器
+  final AudioPlayer _backgroundPlayer = AudioPlayer(); // 背景音樂播放器
+
   List<Map<String, String>> words = []; // 單字資料
   List<Map<String, String>> cards = []; // 混合的卡片資料
   bool isLoading = true;
@@ -34,15 +38,51 @@ class _WordMatchingGameScreenState extends State<WordMatchingGameScreen> {
   void initState() {
     super.initState();
     _fetchWords();
+    _playBackgroundMusic(); // 播放背景音樂
   }
 
   @override
   void dispose() {
-    // 檢查 _timer 是否已初始化
+    _stopAndDisposeResources();
+    super.dispose();
+  }
+
+  void _stopAndDisposeResources() {
+    if (!mounted) return; // 如果 Widget 已被移除，直接返回
     if (_timer.isActive) {
       _timer.cancel(); // 停止計時器
     }
-    super.dispose();
+    _backgroundPlayer.stop(); // 停止背景音樂
+    _backgroundPlayer.dispose(); // 釋放背景音樂播放器資源
+    _effectPlayer.dispose(); // 釋放音效播放器資源
+  }
+
+  Future<void> _playBackgroundMusic() async {
+    try {
+      await _backgroundPlayer.setReleaseMode(ReleaseMode.loop); // 設定音樂循環播放
+      await _backgroundPlayer.setVolume(0.6); // 設定音量為 50%
+      await _backgroundPlayer.play(
+        AssetSource('soundtrack/song18.mp3'),
+      ); // 播放背景音樂
+    } catch (e) {
+      print('Error playing background music: $e');
+    }
+  }
+
+  Future<void> _playCorrectSound() async {
+    try {
+      await _effectPlayer.play(AssetSource('soundtrack/correct.mp3')); // 播放正確音效
+    } catch (e) {
+      print('Error playing correct sound: $e');
+    }
+  }
+
+  Future<void> _playWrongSound() async {
+    try {
+      await _effectPlayer.play(AssetSource('soundtrack/wrong.mp3')); // 播放錯誤音效
+    } catch (e) {
+      print('Error playing wrong sound: $e');
+    }
   }
 
   Future<void> _fetchWords() async {
@@ -71,11 +111,6 @@ class _WordMatchingGameScreenState extends State<WordMatchingGameScreen> {
         this.words = selectedWords; // 不強制轉換為 Map<String, String>
         isLoading = false;
       });
-
-      // // 瀏覽階段結束後開始遊戲
-      // Future.delayed(const Duration(seconds: 10), () {
-      //   _startGame();
-      // });
     } catch (e) {
       print('Error fetching words: $e');
       setState(() {
@@ -123,12 +158,15 @@ class _WordMatchingGameScreenState extends State<WordMatchingGameScreen> {
         orElse: () => {},
       );
       if (correctWord.isNotEmpty) {
+        _playCorrectSound(); // 播放正確音效
         correctMatches++;
         cards.removeWhere(
           (card) =>
               (card['type'] == 'japanese' && card['value'] == japanese) ||
               (card['type'] == 'chinese' && card['value'] == chinese),
         );
+      } else {
+        _playWrongSound(); // 播放錯誤音效
       }
       selectedJapanese = null;
       selectedChinese = null;
@@ -144,121 +182,6 @@ class _WordMatchingGameScreenState extends State<WordMatchingGameScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
-
-    if (isPreviewing) {
-      // 單字瀏覽階段
-      return Scaffold(
-        appBar: AppBar(
-          title: Text('單字瀏覽 - N${widget.level} 第 ${widget.round} 回'),
-        ),
-        body: Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('assets/image/game_back.jpg'), // 設定背景圖片
-              fit: BoxFit.cover, // 圖片填滿背景
-            ),
-          ),
-          child: Column(
-            children: [
-              Expanded(
-                child: PageView.builder(
-                  physics: const BouncingScrollPhysics(), // 拖曳效果
-                  itemCount: words.length,
-                  itemBuilder: (context, index) {
-                    final word = words[index];
-                    return Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Card(
-                        elevation: 4,
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                word['japanese']!,
-                                style: const TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                word['chinese']!,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      isPreviewing = false;
-                      _startGame();
-                    });
-                  },
-                  child: const Text('開始遊戲'),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    if (cards.isEmpty) {
-      // 遊戲結束畫面
-      return Scaffold(
-        appBar: AppBar(
-          title: Text('遊戲結束 - N${widget.level} 第 ${widget.round} 回'),
-        ),
-        body: Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('assets/image/game_back.jpg'), // 設定背景圖片
-              fit: BoxFit.cover, // 圖片填滿背景
-            ),
-          ),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('遊戲結束！', style: const TextStyle(fontSize: 24)),
-                Text(
-                  '正確配對數量：$correctMatches',
-                  style: const TextStyle(fontSize: 18),
-                ),
-                Text('總嘗試次數：$attempts', style: const TextStyle(fontSize: 18)),
-                Text(
-                  '所用時間：${_elapsedSeconds}s',
-                  style: const TextStyle(fontSize: 18),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text('返回'),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: Text('單字配對 - N${widget.level} 第 ${widget.round} 回'),
@@ -270,87 +193,174 @@ class _WordMatchingGameScreenState extends State<WordMatchingGameScreen> {
             fit: BoxFit.cover, // 圖片填滿背景
           ),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              // 數據顯示區域，添加白底
-              Container(
+        child:
+            isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : isPreviewing
+                ? _buildPreviewScreen()
+                : cards.isEmpty
+                ? _buildGameOverScreen()
+                : _buildGameScreen(),
+      ),
+    );
+  }
+
+  Widget _buildPreviewScreen() {
+    return Column(
+      children: [
+        Expanded(
+          child: PageView.builder(
+            physics: const BouncingScrollPhysics(), // 拖曳效果
+            itemCount: words.length,
+            itemBuilder: (context, index) {
+              final word = words[index];
+              return Padding(
                 padding: const EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.8), // 白色背景，帶透明度
-                  borderRadius: BorderRadius.circular(8.0), // 圓角
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '正確配對數量：$correctMatches',
-                      style: const TextStyle(fontSize: 18),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '總嘗試次數：$attempts',
-                      style: const TextStyle(fontSize: 18),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '計時：${_elapsedSeconds}s',
-                      style: const TextStyle(fontSize: 18),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-              // 卡片區域
-              Expanded(
-                child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 4, // 每行顯示 4 個卡片
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                  ),
-                  itemCount: cards.length,
-                  itemBuilder: (context, index) {
-                    final card = cards[index];
-                    final isSelected =
-                        (card['type'] == 'japanese' &&
-                            card['value'] == selectedJapanese) ||
-                        (card['type'] == 'chinese' &&
-                            card['value'] == selectedChinese);
-
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          if (card['type'] == 'japanese') {
-                            selectedJapanese = card['value'];
-                          } else {
-                            selectedChinese = card['value'];
-                          }
-
-                          if (selectedJapanese != null &&
-                              selectedChinese != null) {
-                            _checkMatch(selectedJapanese!, selectedChinese!);
-                          }
-                        });
-                      },
-                      child: Card(
-                        color: isSelected ? Colors.blue[100] : Colors.white,
-                        child: Center(
-                          child: Text(
-                            card['value']!,
-                            style: const TextStyle(fontSize: 16),
-                            textAlign: TextAlign.center,
+                child: Card(
+                  elevation: 4,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          word['japanese']!,
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ),
-                    );
-                  },
+                        const SizedBox(height: 16),
+                        Text(
+                          word['chinese']!,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-            ],
+              );
+            },
           ),
         ),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: ElevatedButton(
+            onPressed: () {
+              setState(() {
+                isPreviewing = false;
+                _startGame();
+              });
+            },
+            child: const Text('開始遊戲'),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGameOverScreen() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('遊戲結束！', style: const TextStyle(fontSize: 24)),
+          Text('正確配對數量：$correctMatches', style: const TextStyle(fontSize: 18)),
+          Text('總嘗試次數：$attempts', style: const TextStyle(fontSize: 18)),
+          Text(
+            '所用時間：${_elapsedSeconds}s',
+            style: const TextStyle(fontSize: 18),
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('返回'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGameScreen() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          // 數據顯示區域，添加白底
+          Container(
+            padding: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.8), // 白色背景，帶透明度
+              borderRadius: BorderRadius.circular(8.0), // 圓角
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '正確配對數量：$correctMatches',
+                  style: const TextStyle(fontSize: 18),
+                ),
+                const SizedBox(height: 8),
+                Text('總嘗試次數：$attempts', style: const TextStyle(fontSize: 18)),
+                const SizedBox(height: 8),
+                Text(
+                  '計時：${_elapsedSeconds}s',
+                  style: const TextStyle(fontSize: 18),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          // 卡片區域
+          Expanded(
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4, // 每行顯示 4 個卡片
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+              ),
+              itemCount: cards.length,
+              itemBuilder: (context, index) {
+                final card = cards[index];
+                final isSelected =
+                    (card['type'] == 'japanese' &&
+                        card['value'] == selectedJapanese) ||
+                    (card['type'] == 'chinese' &&
+                        card['value'] == selectedChinese);
+
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      if (card['type'] == 'japanese') {
+                        selectedJapanese = card['value'];
+                      } else {
+                        selectedChinese = card['value'];
+                      }
+
+                      if (selectedJapanese != null && selectedChinese != null) {
+                        _checkMatch(selectedJapanese!, selectedChinese!);
+                      }
+                    });
+                  },
+                  child: Card(
+                    color: isSelected ? Colors.blue[100] : Colors.white,
+                    child: Center(
+                      child: Text(
+                        card['value']!,
+                        style: const TextStyle(fontSize: 16),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

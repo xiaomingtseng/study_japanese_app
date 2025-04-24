@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:study_japanese/core/database/db.dart'; // 假設有一個 Database 類別來處理資料庫操作
+import 'package:audioplayers/audioplayers.dart';
 
 class WordMultipleChoiceGameScreen extends StatefulWidget {
   final int level;
@@ -19,6 +20,8 @@ class WordMultipleChoiceGameScreen extends StatefulWidget {
 
 class _WordMultipleChoiceGameScreenState
     extends State<WordMultipleChoiceGameScreen> {
+  final AudioPlayer _effectPlayer = AudioPlayer(); // 初始化音效播放器
+
   List<Map<String, String>> words = []; // 單字資料
   late String correctAnswer; // 正確答案
   late List<String> options; // 選項
@@ -39,6 +42,7 @@ class _WordMultipleChoiceGameScreenState
 
   @override
   void dispose() {
+    _effectPlayer.dispose(); // 釋放音效播放器資源
     timer.cancel();
     super.dispose();
   }
@@ -118,9 +122,36 @@ class _WordMultipleChoiceGameScreenState
     }
   }
 
+  // 播放正確音效
+  Future<void> _playCorrectSound() async {
+    try {
+      await _effectPlayer.play(
+        AssetSource('soundtrack/correct.mp3'),
+        volume: 1.0,
+      ); // 播放正確音效
+    } catch (e) {
+      print('Error playing correct sound: $e');
+    }
+  }
+
+  // 播放錯誤音效
+  Future<void> _playWrongSound() async {
+    try {
+      await _effectPlayer.play(
+        AssetSource('soundtrack/wrong.mp3'),
+        volume: 1.0,
+      ); // 播放錯誤音效
+    } catch (e) {
+      print('Error playing wrong sound: $e');
+    }
+  }
+
   void _checkAnswer(String answer) {
     if (answer == correctAnswer) {
+      _playCorrectSound(); // 播放正確音效
       score++;
+    } else {
+      _playWrongSound(); // 播放錯誤音效
     }
     _nextQuestion();
   }
