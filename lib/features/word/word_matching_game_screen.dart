@@ -146,15 +146,23 @@ class _WordMatchingGameScreenState extends State<WordMatchingGameScreen> {
         appBar: AppBar(
           title: Text('單字瀏覽 - N${widget.level} 第 ${widget.round} 回'),
         ),
-        body: ListView.builder(
-          itemCount: words.length,
-          itemBuilder: (context, index) {
-            final word = words[index];
-            return ListTile(
-              title: Text(word['japanese']!),
-              subtitle: Text(word['chinese']!),
-            );
-          },
+        body: Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/image/game_back.jpg'), // 設定背景圖片
+              fit: BoxFit.cover, // 圖片填滿背景
+            ),
+          ),
+          child: ListView.builder(
+            itemCount: words.length,
+            itemBuilder: (context, index) {
+              final word = words[index];
+              return ListTile(
+                title: Text(word['japanese']!),
+                subtitle: Text(word['chinese']!),
+              );
+            },
+          ),
         ),
       );
     }
@@ -165,28 +173,36 @@ class _WordMatchingGameScreenState extends State<WordMatchingGameScreen> {
         appBar: AppBar(
           title: Text('遊戲結束 - N${widget.level} 第 ${widget.round} 回'),
         ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('遊戲結束！', style: const TextStyle(fontSize: 24)),
-              Text(
-                '正確配對數量：$correctMatches',
-                style: const TextStyle(fontSize: 18),
-              ),
-              Text('總嘗試次數：$attempts', style: const TextStyle(fontSize: 18)),
-              Text(
-                '所用時間：${_elapsedSeconds}s',
-                style: const TextStyle(fontSize: 18),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text('返回'),
-              ),
-            ],
+        body: Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/image/game_back.jpg'), // 設定背景圖片
+              fit: BoxFit.cover, // 圖片填滿背景
+            ),
+          ),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('遊戲結束！', style: const TextStyle(fontSize: 24)),
+                Text(
+                  '正確配對數量：$correctMatches',
+                  style: const TextStyle(fontSize: 18),
+                ),
+                Text('總嘗試次數：$attempts', style: const TextStyle(fontSize: 18)),
+                Text(
+                  '所用時間：${_elapsedSeconds}s',
+                  style: const TextStyle(fontSize: 18),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('返回'),
+                ),
+              ],
+            ),
           ),
         ),
       );
@@ -196,66 +212,74 @@ class _WordMatchingGameScreenState extends State<WordMatchingGameScreen> {
       appBar: AppBar(
         title: Text('單字配對 - N${widget.level} 第 ${widget.round} 回'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Text(
-              '正確配對數量：$correctMatches',
-              style: const TextStyle(fontSize: 18),
-            ),
-            Text('總嘗試次數：$attempts', style: const TextStyle(fontSize: 18)),
-            Text(
-              '計時：${_elapsedSeconds}s',
-              style: const TextStyle(fontSize: 18),
-            ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 4, // 每行顯示 4 個卡片
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                ),
-                itemCount: cards.length,
-                itemBuilder: (context, index) {
-                  final card = cards[index];
-                  final isSelected =
-                      (card['type'] == 'japanese' &&
-                          card['value'] == selectedJapanese) ||
-                      (card['type'] == 'chinese' &&
-                          card['value'] == selectedChinese);
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/image/game_back.jpg'), // 設定背景圖片
+            fit: BoxFit.cover, // 圖片填滿背景
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              Text(
+                '正確配對數量：$correctMatches',
+                style: const TextStyle(fontSize: 18),
+              ),
+              Text('總嘗試次數：$attempts', style: const TextStyle(fontSize: 18)),
+              Text(
+                '計時：${_elapsedSeconds}s',
+                style: const TextStyle(fontSize: 18),
+              ),
+              const SizedBox(height: 20),
+              Expanded(
+                child: GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 4, // 每行顯示 4 個卡片
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                  ),
+                  itemCount: cards.length,
+                  itemBuilder: (context, index) {
+                    final card = cards[index];
+                    final isSelected =
+                        (card['type'] == 'japanese' &&
+                            card['value'] == selectedJapanese) ||
+                        (card['type'] == 'chinese' &&
+                            card['value'] == selectedChinese);
 
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        if (card['type'] == 'japanese') {
-                          selectedJapanese = card['value'];
-                        } else {
-                          selectedChinese = card['value'];
-                        }
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          if (card['type'] == 'japanese') {
+                            selectedJapanese = card['value'];
+                          } else {
+                            selectedChinese = card['value'];
+                          }
 
-                        if (selectedJapanese != null &&
-                            selectedChinese != null) {
-                          _checkMatch(selectedJapanese!, selectedChinese!);
-                        }
-                      });
-                    },
-                    child: Card(
-                      color: isSelected ? Colors.blue[100] : Colors.white,
-                      child: Center(
-                        child: Text(
-                          card['value']!,
-                          style: const TextStyle(fontSize: 16),
-                          textAlign: TextAlign.center,
+                          if (selectedJapanese != null &&
+                              selectedChinese != null) {
+                            _checkMatch(selectedJapanese!, selectedChinese!);
+                          }
+                        });
+                      },
+                      child: Card(
+                        color: isSelected ? Colors.blue[100] : Colors.white,
+                        child: Center(
+                          child: Text(
+                            card['value']!,
+                            style: const TextStyle(fontSize: 16),
+                            textAlign: TextAlign.center,
+                          ),
                         ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
