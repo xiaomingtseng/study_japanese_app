@@ -49,7 +49,10 @@ class _WordMatchingGameScreenState extends State<WordMatchingGameScreen> {
     try {
       // 從資料庫根據分區和回數篩選單字
       final db = Database.instance; // 假設有一個 Database 單例
-      final words = await db.fetchWordsByLevelAndRound('N5', widget.round);
+      final words = await db.fetchWordsByLevelAndRound(
+        'N${widget.level}',
+        widget.round,
+      );
 
       // 將資料轉換為需要的格式
       final allWords =
