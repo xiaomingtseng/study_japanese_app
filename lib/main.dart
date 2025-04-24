@@ -9,6 +9,9 @@ import 'features/grammer/grammar_practice_screen.dart';
 import 'features/listening_practice_screen.dart';
 import 'features/user_analysis_screen.dart';
 import 'features/setting_screen.dart';
+import 'features/news/news_screen.dart';
+import 'features/news/news_detail_screen.dart';
+import 'core/http/news.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,6 +39,8 @@ class MainApp extends StatelessWidget {
         '/listeningPractice': (context) => const ListeningPracticeScreen(),
         '/userAnalysis': (context) => const UserAnalysisScreen(),
         '/setting': (context) => const SettingScreen(),
+        '/news': (context) => NewsScreen(),
+        '/newsDetail': (context) => NewsDetailScreen(),
       },
       theme: ThemeData(primarySwatch: Colors.blue),
       debugShowCheckedModeBanner: false,

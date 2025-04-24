@@ -107,6 +107,16 @@ class HomeScreen extends StatelessWidget {
                   color: Colors.orange,
                 ),
                 const Spacer(), // Spacer to add even spacing at the bottom
+                // 在 Column 的 children 中新增按鈕
+                _buildTrainButton(
+                  context,
+                  title: 'NHK Easy News',
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/news'); // 導向 new_screen
+                  },
+                  color: Colors.red, // 設定按鈕顏色
+                ),
+                const SizedBox(height: 16), // 按鈕之間的間距
               ],
             ),
           ),
